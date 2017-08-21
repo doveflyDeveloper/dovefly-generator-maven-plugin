@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class DBHelper {
 
-	public Connection conn = null;
+	public Connection conn;
 	
 	public String driver;
 	
@@ -23,9 +23,9 @@ public class DBHelper {
 	
 	public String password;
 
-	String catalog = null;
+	String catalog;
 
-	String schemaPattern = null;
+	String schemaPattern;
 
 	public DBHelper(String driver, String url, String userName, String password) {
 		super();
@@ -45,27 +45,34 @@ public class DBHelper {
 
 	/**
 	 * 功能: 连接数据库
+	 */
+	public Connection getConnection() {
+		return this.getConnection(driver, url, userName, password);
+	}
+
+	/**
+	 * 功能: 连接数据库
 	 * 
 	 * @param driver
 	 * @param url
 	 * @param userName
 	 * @param password
 	 */
-	public boolean connectDB(String driver, String url, String userName, String password) {
+	public Connection getConnection(String driver, String url, String userName, String password) {
 		try {
 			if (conn == null || conn.isClosed()) {
-				Class.forName(driver); //初始化数据库连接
-				conn = DriverManager.getConnection(url, userName, password);
-				return true;
-			} else {
-				return true;
-			}
-		} catch (UnsupportedClassVersionError e) {
-			return false;
-		} catch (Throwable e) {
+                Class.forName(driver); //初始化数据库连接
+                conn = DriverManager.getConnection(url, userName, password);
+                return conn;
+            } else {
+                return conn;
+            }
+		} catch (SQLException e) {
 			e.printStackTrace();
-			return false;
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		}
+		return conn;
 	}
 	
 	/**
@@ -76,15 +83,12 @@ public class DBHelper {
 	 * @throws SQLException
 	 */
 	public DbTable getTable(String tableName) throws SQLException{
-		if (!connectDB(driver, url, userName, password)) {
-			return null;
-		}
 		//设置表名和中文名
 		String comment = getTableComment4MySql(tableName);
 
 		//查找主键列
 		String key = "";
-		ResultSet rsPk = conn.getMetaData().getPrimaryKeys(null, null, tableName);
+		ResultSet rsPk = getConnection().getMetaData().getPrimaryKeys(null, null, tableName);
 		if(rsPk.next()) {
 			key = toLowerCase(rsPk.getString("COLUMN_NAME"));
 		}
@@ -114,10 +118,7 @@ public class DBHelper {
 	 */
 	public String getTableComment4MySql(String tableName) throws SQLException {
 		String tableComment = "";
-		if (!connectDB(driver, url, userName, password)) {
-			return "";
-		}
-		ResultSet rs = conn.prepareStatement("SELECT * FROM information_schema.TABLES WHERE table_name = '" + tableName + "'").executeQuery();
+		ResultSet rs = getConnection().prepareStatement("SELECT * FROM information_schema.TABLES WHERE table_name = '" + tableName + "'").executeQuery();
 		if (rs.next()) {
 			tableComment = rs.getString("TABLE_COMMENT");
 		}
@@ -132,12 +133,9 @@ public class DBHelper {
 	 */
 	public List<DbColumn> getColumns(String tableName) throws SQLException{
 		List<DbColumn> list = new ArrayList<>();
-		if (!connectDB(driver, url, userName, password)) {
-			return list;
-		}
 		
 		//设置每列属性
-		ResultSet rs = conn.getMetaData().getColumns(catalog, schemaPattern, tableName, null);
+		ResultSet rs = getConnection().getMetaData().getColumns(catalog, schemaPattern, tableName, null);
 		Map<String, DbColumn> map = new HashMap<>();
 		while (rs.next()) {
 			DbColumn column = new DbColumn();
@@ -185,7 +183,7 @@ public class DBHelper {
 		}
 		
 		//设置字段数据类型
-		ResultSetMetaData rsmd = conn.prepareStatement("SELECT * FROM " + tableName).executeQuery().getMetaData();
+		ResultSetMetaData rsmd = getConnection().prepareStatement("SELECT * FROM " + tableName).executeQuery().getMetaData();
 		for (int i = 1; i <= rsmd.getColumnCount(); i++) {
 			String columnName = rsmd.getColumnName(i);//获取指定列的名称。
 			String columnClassName = rsmd.getColumnClassName(i);//如果调用方法 ResultSet.getObject 从列中获取值，则返回构造其实例的 Java 类的完全限定名称。
@@ -206,7 +204,6 @@ public class DBHelper {
 	}
 	
 	public static void main(String[] args){
-
 
 		String default_driver = "com.mysql.jdbc.Driver";
 

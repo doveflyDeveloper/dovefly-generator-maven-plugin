@@ -1,4 +1,4 @@
-package cn.dovefly.maven.plugin;
+package cn.dovefly.maven.plugin.startup;
 
 /*
  * Copyright 2001-2005 The Apache Software Foundation.
@@ -16,6 +16,7 @@ package cn.dovefly.maven.plugin;
  * limitations under the License.
  */
 
+import cn.dovefly.maven.plugin.FreeMarkerUtil;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 
@@ -25,18 +26,24 @@ import org.apache.maven.plugin.MojoExecutionException;
  * @goal generate
  * @phase none
  */
-public class MyMojo extends AbstractMojo {
-//    /**
-//     * Location of the file.
-//     *
-//     * @parameter expression="${project.build.directory}"
-//     * @required
-//     */
-//    private File outputDirectory;
+public class MyCodeGeneratorMojo extends AbstractMojo {
+
+    /**
+     * Location of the config file.
+     * @required
+     * @parameter defaultValue = "/generatorConfig.properties"
+     */
+    private String configFile;
 
     public void execute() throws MojoExecutionException {
         getLog().info( "代码开始生成。。。" );
-        FreeMarkerUtil.generateFiles3("generatorConfig.properties", "test_employee");
+        FreeMarkerUtil.generateFiles(configFile);
         getLog().info( "代码生成完成。。。" );
     }
+
+    /**
+     * <configuration>
+     <port>8090</port>
+     </configuration>
+     */
 }

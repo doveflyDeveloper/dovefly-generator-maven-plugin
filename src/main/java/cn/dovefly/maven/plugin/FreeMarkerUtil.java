@@ -29,38 +29,13 @@ public class FreeMarkerUtil {
 
 	/**
 	 * 创建Configuration对象
-	 * 
-	 * @param templatePath
-	 *			模板文件基目录
-	 * @return
-	 * @throws IOException
-	 */
-	public static Configuration getConfiguration(String templatePath) {
-		// 创建Configuration对象
-		Configuration config = new Configuration();
-
-		// 指定模板路径目录，并加载模板文件
-		try {
-			config.setDirectoryForTemplateLoading(new File(templatePath));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		// 设置包装器，并将对象包装为数据模型
-		config.setObjectWrapper(new DefaultObjectWrapper());
-
-		return config;
-	}
-
-	/**
-	 * 创建Configuration对象
 	 *
 	 * @param templateContent
 	 *			模板文件基目录
 	 * @return
 	 * @throws IOException
 	 */
-	public static Configuration getConfiguration2(String templateName, String templateContent) {
+	public static Configuration getConfiguration(String templateName, String templateContent) {
 //		// 创建Configuration对象
 		Configuration config = new Configuration();
 //
@@ -99,7 +74,7 @@ public class FreeMarkerUtil {
 		return str;
 	}
 
-	public static void generateFiles3(String configFile, String tableName) {
+	public static void generateFiles(String configFile) {
 		try {
 			Properties pro = new Properties();
 			pro.load(FreeMarkerUtil.class.getResourceAsStream(configFile));
@@ -107,6 +82,7 @@ public class FreeMarkerUtil {
 			GlobalConfig config = new GlobalConfig(pro);
 			DBHelper dbHelper = new DBHelper(config);
 
+			String tableName = config.getTableName();
 			DbTable table = dbHelper.getTable(tableName);
 
 			table.initConfig(config);
@@ -125,7 +101,7 @@ public class FreeMarkerUtil {
 
 				InputStream is = FreeMarkerUtil.class.getResourceAsStream("/templates/" + pojo.getTemplateFile());
 				String templateContent = readStrean2String(is);
-				Configuration configuration = getConfiguration2(pojo.getTemplateFile(), templateContent);
+				Configuration configuration = getConfiguration(pojo.getTemplateFile(), templateContent);
 				configuration.setDefaultEncoding(ENCODING);
 
 				Template template = configuration.getTemplate(pojo.getTemplateFile(), ENCODING);
@@ -150,6 +126,6 @@ public class FreeMarkerUtil {
 	}
 
 	public static void main(String[] args) throws IOException, SQLException, TemplateException {
-		generateFiles3("/generatorConfig.properties", "test_employee");
+		generateFiles("/generatorConfig.properties");
 	}
 }
