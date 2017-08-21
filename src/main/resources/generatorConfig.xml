@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 要生成的表 tableName是数据库中的表名或视图名 domainObjectName是实体类名-->
+<tableGenerator tableName="test_employee" generatedKey="id">
+
+    <!-- jdbc连接 -->
+    <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                    connectionURL="jdbc:mysql://139.196.235.181:3306/dovefly"
+                    userId="dovefly"
+                    password="dovefly"/>
+
+    <!-- 忽略列，将不在Bean对象生成相应的字段 -->
+    <ignoreColumn column="is_valid" />
+    <ignoreColumn column="create_time" />
+    <ignoreColumn column="update_time" />
+
+    <!-- 指定列的java数据类型 (可将TEXT类型字段强制转为VARCHAR,否则会将TEXT字段单独生成到BLOB对象)-->
+    <columnOverride column="is_valid" javaType="java.lang.Integer" jdbcType="INTEGER" />
+    <columnOverride column="emp_summary" jdbcType="VARCHAR" />
+    <columnOverride column="emp_desc" jdbcType="VARCHAR" />
+
+    <mapper targetProject="src/main/java"></mapper>
+    <entity targetProject="src/main/java" targetPackage="cn.dovefly.orm.employee.entity" domainObjectName="Employee"></entity>
+    <repo targetProject="src/main/java" targetPackage="cn.dovefly.orm.employee.entity" domainObjectName="Employee"></repo>
+    <service targetProject="src/main/java" targetPackage="cn.dovefly.orm.employee.entity" domainObjectName="Employee"></service>
+    <controller targetProject="src/main/java" targetPackage="cn.dovefly.orm.employee.entity" domainObjectName="Employee"></controller>
+    <html targetProject="src/main/java"></html>
+
+</tableGenerator>
